@@ -6,7 +6,7 @@ var Icon = require('react-native-vector-icons/Ionicons');
 var RefreshableListView = require('react-native-refreshable-listview');
 var Modal   = require('react-native-modalbox');
 
-var HotelsViewController = require('NativeModules').HotelsViewController;
+var ReactViewController = require('NativeModules').ReactViewController;
 
 var {
     StyleSheet,
@@ -105,7 +105,7 @@ var HotelListScreen = React.createClass({
                     </View>
                 }
                 leftButton={
-                    <TouchableOpacity onPress={() => { HotelsViewController.closeViewController(); } }>
+                    <TouchableOpacity onPress={() => { ReactViewController.closeViewController(); } }>
                         <Icon name='ios-arrow-back' size={20} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
                     </TouchableOpacity>
                 }
