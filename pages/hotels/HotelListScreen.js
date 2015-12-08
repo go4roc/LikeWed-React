@@ -1,7 +1,7 @@
 'use strict';
 
 var React = require('react-native');
-var NavigationBar = require('react-native-navbar');
+var NavigationBar = require('./components/NavigationBar');
 var Icon = require('react-native-vector-icons/Ionicons');
 var RefreshableListView = require('react-native-refreshable-listview');
 var Modal   = require('react-native-modalbox');
@@ -22,11 +22,13 @@ var {
 var Dimensions = require('Dimensions');
 var {width, height} = Dimensions.get('window');
 
+var HotelSortPicker = require('./components/HotelSortPicker');
+
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
 
-var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
-//var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
+//var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
+var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 
 var PAGE_SIZE = 10;
 
@@ -60,7 +62,9 @@ var HotelListScreen = React.createClass({
 
     fetchTopicsData(api=this.props.resourceApi, reload) {
         var URL = api;
-        if (!reload) URL = URL+'?page='+this.resultsCache.nextPage;
+        if (!reload) {
+            URL = URL+'?page='+this.resultsCache.nextPage;
+        } 
 
         fetch(URL)
             .then(res => res.json())
@@ -101,17 +105,17 @@ var HotelListScreen = React.createClass({
                 title={
                     <View style={styles.navbarCenter}>
                         <Text style={styles.navbarTitle}>婚宴酒店</Text>
-                        <Text style={styles.navbarTotal}>{this.resultsCache.total}家酒店</Text>
+                        <Text style={styles.navbarSubTitle}>{this.resultsCache.total}家酒店</Text>
                     </View>
                 }
                 leftButton={
                     <TouchableOpacity onPress={() => { ReactViewController.closeViewController(); } }>
-                        <Icon name='ios-arrow-back' size={20} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
+                        <Icon name='ios-arrow-back' size={24} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 24, height: 24, }, this.props.style]} />
                     </TouchableOpacity>
                 }
                 rightButton={
                     <TouchableOpacity onPress={() => this.props.navigator.push({id: 'ShareHotel', hotel: this.props.hotel})}>
-                        <Icon name='ios-search' size={20} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
+                        <Icon name='ios-search' size={24} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 24, height: 24, }, this.props.style]} />
                     </TouchableOpacity>
                 } />
         )
@@ -121,7 +125,7 @@ var HotelListScreen = React.createClass({
         return (
             <View style={styles.filterbar}>
                 <TouchableOpacity style={styles.filterbarItem} onPress={this.openSortPicker} >
-                    <Icon name='ios-shuffle' size={20} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
+                    <Icon name='ios-shuffle' size={24} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
                     <Text style={styles.filterbarLabel}>排序</Text>
                 </TouchableOpacity>
                 <View style={[styles.separatorColor, {width: 1, height: 16}]} />
@@ -292,16 +296,34 @@ var HotelListScreen = React.createClass({
         );
     }, 
 
+    onSortSelected(id) {
+        this.setState({loaded: false});
+
+        var url = HOTEL_LIST_API+ "?sort="+id;
+        this.fetchTopicsData(url, true);
+    },
+
     render() {
-        return (
-            <View style={styles.screen}>
-                { this.renderNavbar() }
-                { this.renderFilterBar() }
-                { this.renderHotelList() }
-                { this.renderSortPicker() }
-                { this.renderFilterPicker() }
-            </View>
-        );
+        if (this.state.loaded) {
+            return (
+                <View style={styles.screen}>
+                    { this.renderNavbar() }
+                    { this.renderFilterBar() }
+                    { this.renderHotelList() }
+                    <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected }/>
+                    { this.renderFilterPicker() }
+                </View>
+            );
+        } else {
+            return (
+                <View style={styles.screen}>
+                    { this.renderNavbar() } 
+                    <View style={{flex:1, alignItems: 'center', justifyContent: 'center'}}>
+                        <ActivityIndicatorIOS size="large"/>
+                    </View>
+                </View>
+            );
+        }
     },
 });
 

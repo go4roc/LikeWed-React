@@ -15,16 +15,17 @@ var styles = StyleSheet.create({
     navbarCenter: {
         flex:1,
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        paddingTop: 4.5,
+        paddingBottom: 4.5
     },
     navbarTitle: {
-        lineHeight: 25,
         fontSize: 16,
         fontWeight: "400",
         color: "#696C75"
     },
-    navbarTotal: {
-        marginTop: 5,
+    navbarSubTitle: {
+        marginTop: 1.5,
         fontSize: 10,
         fontWeight: "200",
         color: "#A9B3BC"
