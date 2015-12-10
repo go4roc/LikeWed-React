@@ -34,11 +34,11 @@ var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 var PAGE_SIZE = 10;
 
 var DefaultFilters = {
-    category: "五星级",
-    district: "武侯区",
-    price: "2000-3000",
-    capacity: "10-20桌",
-    features: ["草坪婚礼", "户外婚礼"]
+    category: "不限",
+    district: "不限",
+    price: "不限",
+    capacity: "不限",
+    features: ["不限"]
 };
 
 var HotelListScreen = React.createClass({
