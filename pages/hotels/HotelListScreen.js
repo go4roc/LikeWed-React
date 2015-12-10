@@ -33,6 +33,14 @@ var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 
 var PAGE_SIZE = 10;
 
+var DefaultFilters = {
+    category: "五星级",
+    district: "武侯区",
+    price: "2000-3000",
+    capacity: "10-20桌",
+    features: ["草坪婚礼", "户外婚礼"]
+};
+
 var HotelListScreen = React.createClass({
     resultsCache: {
         items: [],
@@ -45,29 +53,42 @@ var HotelListScreen = React.createClass({
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2
             }),
+            sortId: 1,
+            filters: DefaultFilters,
             loaded: false
         };
     },
 
     componentDidMount() {
-        this.fetchTopicsData(HOTEL_LIST_API);
+        this.fetchTopicsData();
     },
 
     _loadMore() {
-        this.fetchTopicsData(HOTEL_LIST_API);
+        this.fetchTopicsData();
     },
 
     _reload() {
-        this.fetchTopicsData(HOTEL_LIST_API, true);
+        this.fetchTopicsData(true);
     },
 
-    fetchTopicsData(api=this.props.resourceApi, reload) {
-        var URL = api;
-        if (!reload) {
-            URL = URL+'?page='+this.resultsCache.nextPage;
-        } 
+    fetchTopicsData(reload) {
+        var queryItems = [];
+        var filters = this.state.filters;
 
-        fetch(URL)
+        for (var key in filters) {
+            let value = filters[key];
+            if (value !== "") {
+                queryItems.push(key+"="+encodeURIComponent(value));
+            }
+        }
+
+        queryItems.push('sort='+this.state.sortId);
+
+        if (!reload) {
+            queryItems.push('page='+this.resultsCache.nextPage);
+        }
+
+        fetch(HOTEL_LIST_API+"?"+queryItems.join('&'))
             .then(res => res.json())
             .then(data => {
                 if (reload) this.resultsCache = { items: [], total: 0, nextPage: 1 };
@@ -195,17 +216,15 @@ var HotelListScreen = React.createClass({
     },
 
     onSortSelected(id) {
-        this.setState({loaded: false});
+        this.setState({loaded: false, sortId: id});
 
-        var url = HOTEL_LIST_API+ "?sort="+id;
-        this.fetchTopicsData(url, true);
+        this.fetchTopicsData(true);
     },
 
-    onFilterChanged(id) {
-        this.setState({loaded: false});
+    onFilterChanged(selectedFilters) {
+        this.setState({filters: selectedFilters, loaded: false});
 
-        var url = HOTEL_LIST_API+ "?sort="+id;
-        this.fetchTopicsData(url, true);
+        this.fetchTopicsData(true);
     },
 
     render() {
@@ -215,8 +234,8 @@ var HotelListScreen = React.createClass({
                     { this.renderNavbar() }
                     { this.renderFilterBar() }
                     { this.renderHotelList() }
-                    <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected }/>
-                    <HotelFilterPicker ref="filterPicker" onFilterChanged={ this.onFilterChanged }/>
+                    <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected } sortId={ this.state.sortId } />
+                    <HotelFilterPicker ref="filterPicker" onFilterChanged={ this.onFilterChanged } filters={this.state.filters}/>
                 </View>
             );
         } else {

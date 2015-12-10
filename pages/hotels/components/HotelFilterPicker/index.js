@@ -18,7 +18,7 @@ var {width, height} = Dimensions.get('window');
 
 const Filters = [
     { 
-        id:"category", 
+        id: "category", 
         title: "类型", 
         multi: false,
         items: [
@@ -29,7 +29,7 @@ const Filters = [
         ]
     }, 
     { 
-        id:"district", 
+        id: "district", 
         title: "区域", 
         multi: false,
         items: [
@@ -49,7 +49,7 @@ const Filters = [
         ]
     }, 
     { 
-        id:"price",    
+        id: "price",    
         title: "价格", 
         multi: false,
         items: [
@@ -61,7 +61,7 @@ const Filters = [
         ]
     }, 
     { 
-        id:"capacity", 
+        id: "capacity", 
         title: "桌数", 
         multi: false,
         items: [
@@ -73,7 +73,7 @@ const Filters = [
         ]
     }, 
     { 
-        id:"feature",  
+        id: "features",  
         title: "特色", 
         multi: true,
         items: [
@@ -103,8 +103,43 @@ const Filters = [
     }
 ];
 
+const DefaultFilters = {
+    category: "不限",
+    district: "不限",
+    price: "不限",
+    capacity: "不限",
+    features: ["不限"]
+};
+
 var HotelFilterPicker = React.createClass({
+    //重置选择项到缺省的
+    _resetFilters(filters, defaultFilters) {
+        filters.forEach(filter => {
+            let currentFilter = defaultFilters[filter.id];
+
+            if (currentFilter) {
+                filter.items.forEach(item => {
+                    if (filter.multi) {
+                        if (currentFilter.indexOf(item.title) >= 0) {
+                            item.selected = true;
+                        } else {
+                            item.selected = false;
+                        }
+                    } else {
+                        if (item.title === currentFilter) {
+                            item.selected = true;
+                        } else {
+                            item.selected = false;
+                        }
+                    }
+                });
+            }
+        });
+    },
+
     getInitialState: function() {
+        this._resetFilters(Filters, this.props.filters);
+
         return {
             data: Filters,
             selectedCategory: Filters[0].id,
@@ -119,7 +154,6 @@ var HotelFilterPicker = React.createClass({
         var data = {};
 
         this.refs.picker.close();
-        this.props.onFilterChanged(data);
     },
 
     _onSelectCategory(id) {
@@ -159,6 +193,31 @@ var HotelFilterPicker = React.createClass({
         }
     },
 
+    _onResetFilters() {
+        this._resetFilters(Filters, DefaultFilters);
+
+        this.setState({data: Filters});
+    },
+
+    _onSubmitFilters() {
+        var filters = this.state.data;
+        var selectedFilters = {};
+
+        filters.forEach(filter => {
+            var currentItems = filter.items.filter(item => item.selected);
+            if (currentItems.length > 0) {
+                if (filter.multi) {
+                    selectedFilters[filter.id] = currentItems.map(item => item.title);
+                } else {    
+                    selectedFilters[filter.id] = currentItems[0].title;
+                }
+            }
+        });
+        
+        this.refs.picker.close();
+        this.props.onFilterChanged(selectedFilters);
+     },
+
     renderHeader() {
         return (
             <View style={[styles.header]}>
@@ -175,10 +234,10 @@ var HotelFilterPicker = React.createClass({
     renderFooter() {
         return (
             <View style={[styles.footer]} >
-                <TouchableOpacity style={[styles.reset]}>
+                <TouchableOpacity style={[styles.reset]} onPress={ this._onResetFilters }>
                     <Text style={[styles.footerText]}>恢复默认</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.submit]} onPress={this.closeFilterPicker}>
+                <TouchableOpacity style={[styles.submit]} onPress={this._onSubmitFilters }>
                     <Text style={[styles.footerText]}>确     定</Text>
                 </TouchableOpacity>
             </View>
