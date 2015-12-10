@@ -23,6 +23,7 @@ var Dimensions = require('Dimensions');
 var {width, height} = Dimensions.get('window');
 
 var HotelSortPicker = require('./components/HotelSortPicker');
+var HotelFilterPicker = require('./components/HotelFilterPicker');
 
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
@@ -31,6 +32,14 @@ var indicatorStyles = require('../../styles/IndicatorStyles');
 var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 
 var PAGE_SIZE = 10;
+
+var DefaultFilters = {
+    category: "五星级",
+    district: "武侯区",
+    price: "2000-3000",
+    capacity: "10-20桌",
+    features: ["草坪婚礼", "户外婚礼"]
+};
 
 var HotelListScreen = React.createClass({
     resultsCache: {
@@ -44,29 +53,42 @@ var HotelListScreen = React.createClass({
             dataSource: new ListView.DataSource({
                 rowHasChanged: (row1, row2) => row1 !== row2
             }),
+            sortId: 1,
+            filters: DefaultFilters,
             loaded: false
         };
     },
 
     componentDidMount() {
-        this.fetchTopicsData(HOTEL_LIST_API);
+        this.fetchTopicsData();
     },
 
     _loadMore() {
-        this.fetchTopicsData(HOTEL_LIST_API);
+        this.fetchTopicsData();
     },
 
     _reload() {
-        this.fetchTopicsData(HOTEL_LIST_API, true);
+        this.fetchTopicsData(true);
     },
 
-    fetchTopicsData(api=this.props.resourceApi, reload) {
-        var URL = api;
-        if (!reload) {
-            URL = URL+'?page='+this.resultsCache.nextPage;
-        } 
+    fetchTopicsData(reload) {
+        var queryItems = [];
+        var filters = this.state.filters;
 
-        fetch(URL)
+        for (var key in filters) {
+            let value = filters[key];
+            if (value !== "") {
+                queryItems.push(key+"="+encodeURIComponent(value));
+            }
+        }
+
+        queryItems.push('sort='+this.state.sortId);
+
+        if (!reload) {
+            queryItems.push('page='+this.resultsCache.nextPage);
+        }
+
+        fetch(HOTEL_LIST_API+"?"+queryItems.join('&'))
             .then(res => res.json())
             .then(data => {
                 if (reload) this.resultsCache = { items: [], total: 0, nextPage: 1 };
@@ -85,19 +107,6 @@ var HotelListScreen = React.createClass({
                 alert('获取酒店数据错误');
             });
     },  
-
-    openSortPicker(id) {
-        console.info('openSortPicker', id);
-        this.refs.sortPicker.open();
-    },
-
-    openFilterPicker(id) {
-        this.refs.filterPicker.open();
-    },
-
-    closeFilterPicker(id) {
-        this.refs.filterPicker.close();
-    },
 
     renderNavbar() {
         return (
@@ -128,7 +137,7 @@ var HotelListScreen = React.createClass({
                     <Icon name='ios-shuffle' size={24} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
                     <Text style={styles.filterbarLabel}>排序</Text>
                 </TouchableOpacity>
-                <View style={[styles.separatorColor, {width: 1, height: 16}]} />
+                <View style={[styles.separatorColor, {width: 1, height: 20}]} />
                 <TouchableOpacity style={styles.filterbarItem} onPress={this.openFilterPicker} >
                     <Icon name='ios-settings' size={20} color='#e9573e' style={[{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }, this.props.style]} />
                     <Text style={styles.filterbarLabel}>筛选</Text>
@@ -198,109 +207,24 @@ var HotelListScreen = React.createClass({
         )
     },
 
-    renderSortPicker() {
-        return (
-            <Modal style={[styles.sortPicker]} position={"bottom"} ref={"sortPicker"}>
-                <View style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerTitle]}>选择排序方式</Text>
-                </View>
-                <TouchableOpacity style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerText]}>婚礼汇推荐排序</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerText]}>桌数：从高到低</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerText]}>桌数：从低到高</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerText]}>价格：从高到低</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.sortPickerRow]}>
-                    <Text style={[styles.sortPickerText]}>价格：从低到高</Text>
-                </TouchableOpacity>
-            </Modal>
-        );
+    openSortPicker(id) {
+        this.refs.sortPicker.open();
     },
 
-    renderFilterPicker() {
-        var categoryWidth = Math.floor(33*width/100);
-        return (
-            <Modal style={[styles.filterPicker]} backdrop={false} swipeToClose={false} position={"bottom"} ref={"filterPicker"}>
-                <View style={[styles.filterPickerHeader]}>
-                    <View style={[styles.filterPickerTitleWrapper]}>
-                        <Text style={[styles.filterPickerTitle]}>选择筛选条件</Text>
-                    </View>
-                    <TouchableOpacity style={[styles.filterPickerClose]} onPress={this.closeFilterPicker}>
-                        <Icon name='ios-close-empty' size={36} color='#e9573e' style={[styles.filterPickerCloseIcon]} />
-                    </TouchableOpacity>
-                </View>
-                <View style={[styles.filterPickerBody]}>
-                    <View style={styles.filterPickerCategoryWraper}>
-                        <ScrollView style={styles.filterPickerList}>
-                            <TouchableOpacity style={[styles.filterPickerRow, styles.filterPickerItemRowSelected]}>
-                                <Text style={[styles.filterPickerText]}>类型</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerRow]}>
-                                <Text style={[styles.filterPickerText]}>区域</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerRow]}>
-                                <Text style={[styles.filterPickerText]}>价格</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerRow]}>
-                                <Text style={[styles.filterPickerText]}>桌数</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerRow]}>
-                                <Text style={[styles.filterPickerText]}>特色</Text>
-                            </TouchableOpacity>    
-                        </ScrollView>
-                    </View>
-                    <View style={styles.filterPickerOptionWraper}>
-                        <ScrollView horizontal={false} style={styles.filterPickerList}>
-                            <TouchableOpacity style={[styles.filterPickerItemRow]}>
-                                <View style={{flex:1, alignItems: 'center',}}>
-                                    <Text style={[styles.filterPickerText]}>不限</Text>
-                                </View>
-                                <Icon name='ios-checkmark' size={20} color='#e9573e' style={[styles.filterPickerCheckIcon]} />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerItemRow]}>
-                                <View style={{flex:1, alignItems: 'center',}}>
-                                    <Text style={[styles.filterPickerText]}>五星级</Text>
-                                </View>
-                                <Icon name='ios-checkmark' size={20} color='#e9573e' style={[styles.filterPickerCheckIcon, styles.filterPickerCheckIconSelected]} />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerItemRow]}>
-                                <View style={{flex:1, alignItems: 'center',}}>
-                                    <Text style={[styles.filterPickerText]}>四星级</Text>
-                                </View>
-                                <Icon name='ios-checkmark' size={20} color='#e9573e' style={[styles.filterPickerCheckIcon]} />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.filterPickerItemRow]}>
-                                <View style={{flex:1, alignItems: 'center',}}>
-                                    <Text style={[styles.filterPickerText]}>特色餐厅</Text>
-                                </View>
-                                <Icon name='ios-checkmark' size={20} color='#e9573e' style={[styles.filterPickerCheckIcon]} />
-                            </TouchableOpacity>
-                        </ScrollView>
-                    </View>
-                </View>
-                <View style={[styles.filterPickerFooter]} >
-                    <TouchableOpacity style={[styles.filterPickerClear]}>
-                        <Text style={[styles.filterPickerFooterText]}>恢复默认</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.filterPickerSubmit]} onPress={this.closeFilterPicker}>
-                        <Text style={[styles.filterPickerFooterText]}>确     定</Text>
-                    </TouchableOpacity>
-                </View>
-            </Modal>
-        );
-    }, 
+    openFilterPicker(id) {
+        this.refs.filterPicker.open();
+    },
 
     onSortSelected(id) {
-        this.setState({loaded: false});
+        this.setState({loaded: false, sortId: id});
 
-        var url = HOTEL_LIST_API+ "?sort="+id;
-        this.fetchTopicsData(url, true);
+        this.fetchTopicsData(true);
+    },
+
+    onFilterChanged(selectedFilters) {
+        this.setState({filters: selectedFilters, loaded: false});
+
+        this.fetchTopicsData(true);
     },
 
     render() {
@@ -310,8 +234,8 @@ var HotelListScreen = React.createClass({
                     { this.renderNavbar() }
                     { this.renderFilterBar() }
                     { this.renderHotelList() }
-                    <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected }/>
-                    { this.renderFilterPicker() }
+                    <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected } sortId={ this.state.sortId } />
+                    <HotelFilterPicker ref="filterPicker" onFilterChanged={ this.onFilterChanged } filters={this.state.filters}/>
                 </View>
             );
         } else {

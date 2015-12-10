@@ -33,7 +33,7 @@ var styles = StyleSheet.create({
     filterbar: {
         flexDirection: 'row',
         backgroundColor: "#FFFFFF",
-        height: 36,
+        height: 40,
         padding: 10,
         borderBottomWidth: 1,
         borderColor: "#D4D4D4"
