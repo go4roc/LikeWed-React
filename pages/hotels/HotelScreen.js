@@ -27,8 +27,8 @@ var { width, height, scale } = Dimensions.get('window');
 
 var MAP_URL = "http://restapi.amap.com/v3/staticmap?location=104.07002091,30.66349276&zoom=14&size=665*259&markers=mid,,A:104.07002091,30.66349276&key=81885d006dd6a782ba83c4a2f2e67088&scale=2";
 
-// var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
-var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
+// var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
 
 var HotelScreen = React.createClass({
 	getInitialState: function() {
@@ -49,7 +49,7 @@ var HotelScreen = React.createClass({
     			this.props.hotel.halls = json.halls;
     			this.props.hotel.menus = json.menus;
     			// this.props.hotel.services = json.services;
-    			// this.props.hotel.reviews = json.reviews;
+    			this.props.hotel.reviews = json.reviews;
     			// this.props.hotel.related = json.related;
 
     			this.setState({loaded: true});
@@ -337,7 +337,7 @@ var HotelScreen = React.createClass({
         				</View>
         			</View>
         			<View style={{marginTop: 5}}>
-        				<Text style={{lineHeight: 23, color: '#3D3D3D', fontWeight: "300", fontSize: 13}}>{review.content}</Text>
+        				<Text numberOfLines={4}  style={{lineHeight: 23, color: '#3D3D3D', fontWeight: "300", fontSize: 13}}>{review.content}</Text>
         			</View>
         		</View>
 			</View>
@@ -349,7 +349,7 @@ var HotelScreen = React.createClass({
 			return (
 				<View style={{marginTop: 15, backgroundColor: "#FFFFFF"}}>
 		   			<View style={{alignItems: 'flex-start', padding: 15}} >
-		        		<Text style={{color: '#A9A9A9', fontWeight: "300", fontSize: 16}}>{hotel.reviews.length}条评论</Text>
+		        		<Text style={{color: '#A9A9A9', fontWeight: "300", fontSize: 16}}>{hotel.stats.reviews}条评论</Text>
 		        	</View>
 		        	{
 	        			hotel.reviews.map((review, index) => {
@@ -359,7 +359,7 @@ var HotelScreen = React.createClass({
 	        					return (
 	        						<View>
 	        							<View style={{height: 1, backgroundColor: '#E1E1E1'}}/>
-	        							{this.renderComment(hotel, review)}
+	        							{this.renderReview(hotel, review)}
 	        						</View>
 	        					)
 	        				}
