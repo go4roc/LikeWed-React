@@ -23,8 +23,7 @@ const Filters = [
         multi: false,
         items: [
             { title: "不限", selected: true },
-            { title: "五星级", selected: false },
-            { title: "四星级", selected: false },
+            { title: "星级酒店", selected: false },
             { title: "特色餐厅", selected: false }
         ]
     }, 
