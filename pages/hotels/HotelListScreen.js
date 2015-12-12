@@ -24,6 +24,7 @@ var {width, height} = Dimensions.get('window');
 
 var HotelSortPicker = require('./components/HotelSortPicker');
 var HotelFilterPicker = require('./components/HotelFilterPicker');
+var HotelCard = require('./components/HotelCard');
 
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
@@ -192,7 +193,7 @@ var HotelListScreen = React.createClass({
                 pageSize={8}
                 onEndReached={this._loadMore}
                 dataSource={ this.state.dataSource }
-                renderRow={ this.renderHotelRow }
+                renderRow={ hotel => <HotelCard hotel={hotel} navigator={this.props.navigator} /> }
                 style={styles.listContainer }
                 removeClippedSubviews={true}
                 onEndReachedThreshold={0}
