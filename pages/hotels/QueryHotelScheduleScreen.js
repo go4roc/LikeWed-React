@@ -13,7 +13,6 @@ var {
 	PixelRatio,
 	StyleSheet,
 	Text,
-	TouchableHighlight,
 	TouchableOpacity,
 	View,
 	ScrollView,
@@ -23,7 +22,7 @@ var {
 var QueryHotelScheduleScreen = React.createClass({
 	getDefaultProps() {
 		return {
-			date: new Date(new Date().setMonth(new Date().getMonth()+3)),
+			date: new Date(new Date().setMonth(new Date().getMonth()+3)),  //可以优化为三个月后对应周的周六
 			maximumDate: new Date(new Date().setYear(new Date().getFullYear()+2)),
 			minimumDate: new Date()
 		};
@@ -31,6 +30,7 @@ var QueryHotelScheduleScreen = React.createClass({
 
 	getInitialState() {
 		return {
+			showDatePicker: false,
 			date: this.props.date
 		};
 	},
@@ -158,21 +158,27 @@ var QueryHotelScheduleScreen = React.createClass({
 	renderWeddingDate(hotel) {
 		return (
 			<View>
-	    		<View style={{marginTop: 10, flexDirection: 'row', paddingTop: 15, paddingLeft: 15, paddingRight: 15, paddingBottom: 15, backgroundColor: '#FFFFFF',}}>
-	            	<View style={{}} >
-	            		<Text style={{color: '#262626', fontWeight: "300", fontSize: 16}}>选择查询时间</Text>
-	            	</View>
-	            	<View style={{flex:1, alignItems: 'flex-end'}}>
-	            		<Text style={{color: '#FA7621', fontWeight: "400", fontSize: 16}}>{this.state.date.getFullYear()}年{this.state.date.getMonth()+1}月{this.state.date.getDate()}日</Text>
-	            	</View>
-	    		</View>
+				<TouchableOpacity onPress={()=> { this.setState({showDatePicker: !this.state.showDatePicker}) } }>
+		    		<View style={{marginTop: 10, flexDirection: 'row', paddingTop: 15, paddingLeft: 15, paddingRight: 15, paddingBottom: 15, backgroundColor: '#FFFFFF',}}>
+		            	<View style={{}} >
+		            		<Text style={{color: '#262626', fontWeight: "300", fontSize: 16}}>选择查询时间</Text>
+		            	</View>
+		            	<View style={{flex:1, alignItems: 'flex-end'}}>
+		            		<Text style={{color: '#FA7621', fontWeight: "400", fontSize: 16}}>{this.state.date.getFullYear()}年{this.state.date.getMonth()+1}月{this.state.date.getDate()}日</Text>
+		            	</View>
+		    		</View>
+	    		</TouchableOpacity>
 	    		<View>
-	    			<DatePickerIOS
-						date={this.state.date}
-						mode="date"
-						onDateChange={this.onDateChange} 
-						maximumDate={this.props.maximumDate}
-						minimumDate={this.props.minimumDate} />
+	    			{
+			    		this.state.showDatePicker ? 
+			    			<DatePickerIOS
+								date={this.state.date}
+								mode="date"
+								onDateChange={this.onDateChange} 
+								maximumDate={this.props.maximumDate}
+								minimumDate={this.props.minimumDate} />
+							: null
+	    			}
 	    		</View>
     		</View>
 		);
