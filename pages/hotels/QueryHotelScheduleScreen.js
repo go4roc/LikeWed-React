@@ -52,24 +52,27 @@ var QueryHotelScheduleScreen = React.createClass({
 	},
 
 	renderHotel(hotel) {
+		var hotel = this.props.hotel;
+		var capacity = hotel.capacity.start === hotel.capacity.end ? hotel.capacity.start: hotel.capacity.start +'-' + hotel.capacity.end;
+
 		return (
     		<View style={{flexDirection: 'row', paddingTop: 15, paddingLeft: 15, paddingRight: 15, paddingBottom: 15, backgroundColor: '#FFFFFF',}}>
-    			<Image style={{width: 100, height: 68, resizeMode: Image.resizeMode.cover, }} source={{uri: 'ritz_02'}} />
+    			<Image style={{width: 100, height: 68, resizeMode: Image.resizeMode.cover, }} source={{uri: hotel.pics[0].url+'!380x'}} />
     			<View style={{flex:1, paddingLeft: 8}}>
     				<View style={{flexDirection: 'row'}}>
-    					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>成都富力丽思卡尔顿酒店</Text>
+    					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>{hotel.name}</Text>
     				</View>
     				<View style={{flexDirection: 'row', marginTop: 8}}>
     					<View style={{flexDirection: 'row'}}>
-    						<Text style={{color: '#FA7621', fontWeight: "300", fontSize: 14}}>5.0分</Text>
-    						<Text style={{color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>/98预订</Text>
+    						<Text style={{color: '#FA7621', fontWeight: "300", fontSize: 14}}>{hotel.score}分</Text>
+    						<Text style={{color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>/{hotel.stats.orders}预订</Text>
     					</View>
     					<View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end', }} >
-    						<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>容纳12-45桌</Text>
+    						<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>容纳{capacity}桌</Text>
     					</View>
     				</View>
     				<View style={{flexDirection: 'row', marginTop: 8, }}>
-    					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>五星酒店・顺城大街，省体育馆附件</Text>
+    					<Text numberOfLines={1} style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>{hotel.category}・{hotel.location.address}</Text>
     				</View>
     			</View>
     		</View>
@@ -181,8 +184,8 @@ var QueryHotelScheduleScreen = React.createClass({
             	{ this.renderNavbar() }
             	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
             		{ this.renderHotel(this.props.hotel) }
-            		{ this.renderSelectHall(this.props.hotle) }
             		{ this.renderWeddingDate(this.props.hotel) }
+            		{ this.renderSelectHall(this.props.hotle) }
             		<View>
             			<View style={{margin: 15}}>
             				<Text style={{color: '#262626', fontWeight: "300", fontSize: 14, lineHeight: 22}}>我们将档期查询请求发送到酒店，酒店回复后，喜结婚礼汇将推送消息进行通知，你也可在"我的"页面中的"消息"栏目中看到档期查询处理状态。</Text>
