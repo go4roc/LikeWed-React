@@ -19,6 +19,43 @@ var {
 	DatePickerIOS
 } = React;
 
+
+var HallCard = React.createClass({
+	getInitialState() {
+		return {
+			selected: this.props.selected,
+		};
+	},
+
+	_onSelected() {
+		this.props.hall.selected = !this.state.selected;
+		this.setState({selected: this.props.hall.selected});
+	},
+
+	render() {
+		var hall = this.props.hall;
+
+		return (
+			<TouchableOpacity onPress={ this._onSelected } >
+				<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: this.state.selected ? '#FA7621' : '#E1E1E1'}}>
+					<View style={{ padding: 5}}>
+						<Icon name='ios-checkmark-outline' size={20} color={this.state.selected ? '#FA7621' : '#E1E1E1'} style={[{width: 20, height: 20, }, this.props.style]} />
+					</View>
+					<View style={{paddingLeft: 5, flex:1}}>
+						<View style={{flexDirection: 'row'}}>
+							<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>{hall.name}</Text>
+						</View>
+						<View style={{marginTop: 8, flexDirection: 'row'}}>
+							<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>{hall.area}平米</Text>
+							<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳{hall.capacity}桌</Text>
+						</View>
+					</View>
+		    	</View>
+	    	</TouchableOpacity>
+    	);
+	}
+});
+
 var QueryHotelScheduleScreen = React.createClass({
 	getDefaultProps() {
 		return {
@@ -27,11 +64,18 @@ var QueryHotelScheduleScreen = React.createClass({
 			minimumDate: new Date()
 		};
 	},
+	
+	halls: [],
 
 	getInitialState() {
+		var halls = this.props.hotel.halls;
+
+		if (halls && halls.length > 0)
+			this.halls = halls.map(hall => Object.assign({selected: false}, hall)); 
+
 		return {
 			showDatePicker: false,
-			date: this.props.date
+			date: this.props.date,
 		};
 	},
 
@@ -50,6 +94,7 @@ var QueryHotelScheduleScreen = React.createClass({
 	            } />
 		)
 	},
+
 
 	renderHotel(hotel) {
 		var hotel = this.props.hotel;
@@ -79,80 +124,40 @@ var QueryHotelScheduleScreen = React.createClass({
 		);
 	},
 
-	renderSelectHall(hotel) {
+	renderHallRow(hall1, hall2) {
 		return (
-			<View>
-				<View style={{marginTop: 15, backgroundColor: "#FFFFFF"}}>
-	            	<View style={{alignItems: 'flex-start', padding: 15}} >
-	            		<Text style={{color: '#262626', fontWeight: "300", fontSize: 16}}>选择询问档期的宴会厅（可以多选）</Text>
-	            	</View>
-	            </View>
-	            <View style={{flexDirection: "row", marginTop: 5}}>
-	            	<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: '#FA7621'}}>
-        				<View style={{ padding: 5}}>
-        					<Icon name='ios-checkmark-outline' size={20} color='#FA7621' style={[{width: 20, height: 20, }, this.props.style]} />
-        				</View>
-        				<View style={{paddingLeft: 5, flex:1}}>
-	        				<View style={{flexDirection: 'row'}}>
-	        					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>钻石厅</Text>
-	        					<Text style={{marginLeft: 8, color: '#343434', fontWeight: "300", fontSize: 16}}>2F</Text>
-	        				</View>
-	        				<View style={{marginTop: 8, flexDirection: 'row'}}>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>900平米</Text>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳45桌</Text>
-	        				</View>
-        				</View>
-	            	</View>
-	            	<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: '#E1E1E1'}}>
-        				<View style={{ padding: 5 }}>
-        					<Icon name='ios-checkmark-outline' size={20} color='#989898' style={[{width: 20, height: 20, }, this.props.style]} />
-        				</View>
-        				<View style={{paddingLeft: 5, flex:1}}>
-	        				<View style={{flexDirection: 'row'}}>
-	        					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>钻石厅1</Text>
-	        					<Text style={{marginLeft: 8, color: '#343434', fontWeight: "300", fontSize: 16}}>2F</Text>
-	        				</View>
-	        				<View style={{marginTop: 8, flexDirection: 'row'}}>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>300平米</Text>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳14桌</Text>
-	        				</View>
-	        			</View>
-	            	</View>
-	            </View>
-	            <View style={{flexDirection: "row"}}>
-	            	<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: '#E1E1E1'}}>
-        				<View style={{ padding: 5 }}>
-        					<Icon name='ios-checkmark-outline' size={20} color='#989898' style={[{width: 20, height: 20, }, this.props.style]} />
-        				</View>
-        				<View style={{paddingLeft: 5, flex:1}}>
-	        				<View style={{flexDirection: 'row'}}>
-	        					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>钻石厅1+2</Text>
-	        					<Text style={{marginLeft: 8, color: '#343434', fontWeight: "300", fontSize: 16}}>2F</Text>
-	        				</View>
-	        				<View style={{marginTop: 8, flexDirection: 'row'}}>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>600平米</Text>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳26桌</Text>
-	        				</View>
-        				</View>
-	            	</View>
-	            	<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: '#E1E1E1'}}>
-        				<View style={{ padding: 5 }}>
-        					<Icon name='ios-checkmark-outline' size={20} color='#989898' style={[{width: 20, height: 20, }, this.props.style]} />
-        				</View>
-        				<View style={{paddingLeft: 5, flex:1}}>
-	        				<View style={{flexDirection: 'row'}}>
-	        					<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>翡翠厅</Text>
-	        					<Text style={{marginLeft: 8, color: '#343434', fontWeight: "300", fontSize: 16}}>2F</Text>
-	        				</View>
-	        				<View style={{marginTop: 8, flexDirection: 'row'}}>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>180平米</Text>
-	        					<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳12桌</Text>
-	        				</View>
-	        			</View>
-	            	</View>
-	            </View>
+			<View style={{flexDirection: "row", marginTop: 5}}>
+				<HallCard hall={hall1} />
+				{
+					hall2 ? 
+						<HallCard hall={hall2} selected={false} />
+						: null
+				}
 			</View>
-       	);
+		);
+	},
+
+	renderHalls(hotel) {
+		var halls = this.halls;
+
+		if (halls && halls.length > 0) {
+			var rows = [];
+			var count = halls.length;
+			for(var i = 0; i < count; i+=2) {
+				rows.push(this.renderHallRow(halls[i], i+1 < count ? halls[i+1] : null));
+			}
+
+			return (
+				<View>
+					<View style={{marginTop: 15, backgroundColor: "#FFFFFF"}}>
+		            	<View style={{alignItems: 'flex-start', padding: 15}} >
+		            		<Text style={{color: '#262626', fontWeight: "300", fontSize: 16}}>选择询问档期的宴会厅（可以多选）</Text>
+		            	</View>
+		            </View>
+					{ rows }
+		        </View>
+		    );
+		}
 	},
 
 	renderWeddingDate(hotel) {
@@ -191,7 +196,7 @@ var QueryHotelScheduleScreen = React.createClass({
             	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
             		{ this.renderHotel(this.props.hotel) }
             		{ this.renderWeddingDate(this.props.hotel) }
-            		{ this.renderSelectHall(this.props.hotle) }
+            		{ this.renderHalls(this.props.hotel) }
             		<View>
             			<View style={{margin: 15}}>
             				<Text style={{color: '#262626', fontWeight: "300", fontSize: 14, lineHeight: 22}}>我们将档期查询请求发送到酒店，酒店回复后，喜结婚礼汇将推送消息进行通知，你也可在"我的"页面中的"消息"栏目中看到档期查询处理状态。</Text>
@@ -208,13 +213,32 @@ var QueryHotelScheduleScreen = React.createClass({
     },
 
     submitQuery() {
-    	fetch(QUERY_HOTEL_SCHEDULE_URL, {method: 'POST'})
+    	var data = {
+    		_id: this.props.hotel._id,
+    		date: this.state.date,
+    		halls: []
+    	};
+
+    	this.halls.forEach(hall => {
+    		if (hall.selected) {
+    			data.halls.push(hall._id);
+    		}
+    	});
+
+    	fetch(QUERY_HOTEL_SCHEDULE_URL, {
+	    		method: 'POST', 
+	    		body: JSON.stringify(data),
+	    		headers: new Headers({
+					'Accept': 'application/json',
+				 	'Content-Type': 'application/json'
+				})
+	    	})
     		.then(response => response.json())
     		.then(json => {
     			this.props.navigator.pop();
     		})
     		.catch(err => {
-    			alert('提交请求档期查询请求失败');
+    			console.error('提交请求档期查询请求失败!\n', err);
     		});
     }
 });
