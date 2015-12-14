@@ -36,7 +36,7 @@ var HallCard = React.createClass({
 		var hall = this.props.hall;
 
 		return (
-			<TouchableOpacity onPress={ this._onSelected } >
+			<TouchableOpacity onPress={ this._onSelected } style={{flex:1}}>
 				<View style={{flex:1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: 5, padding:5, backgroundColor: '#FFFFFF', borderWidth:1, borderColor: this.state.selected ? '#FA7621' : '#E1E1E1'}}>
 					<View style={{ padding: 5}}>
 						<Icon name='ios-checkmark-outline' size={20} color={this.state.selected ? '#FA7621' : '#E1E1E1'} style={[{width: 20, height: 20, }, this.props.style]} />
@@ -46,7 +46,7 @@ var HallCard = React.createClass({
 							<Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>{hall.name}</Text>
 						</View>
 						<View style={{marginTop: 8, flexDirection: 'row'}}>
-							<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>{hall.area}平米</Text>
+							<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>{hall.area}㎡</Text>
 							<Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>容纳{hall.capacity}桌</Text>
 						</View>
 					</View>
@@ -189,6 +189,7 @@ var QueryHotelScheduleScreen = React.createClass({
 		);
 	},
 
+	//TODO: 需要增加中午、晚上和全天， 档期的选择
     render() {
         return (
         	<View style={{flex:1}}>
