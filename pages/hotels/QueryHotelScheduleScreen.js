@@ -4,8 +4,8 @@ var React = require('react-native');
 var NavigationBar = require('react-native-navbar');
 var Icon = require('react-native-vector-icons/Ionicons');
 
-//var QUERY_HOTEL_SCHEDULE_URL = "http://api.likewed.net/V1/hotel/queryschedule";
-var QUERY_HOTEL_SCHEDULE_URL = "http://127.0.0.1:9928/V1/hotel/queryschedule";
+var QUERY_HOTEL_SCHEDULE_URL = "http://api.likewed.net/V1/hotel/queryschedule";
+//var QUERY_HOTEL_SCHEDULE_URL = "http://127.0.0.1:9928/V1/hotel/queryschedule";
 
 var {
 	ActivityIndicatorIOS,
