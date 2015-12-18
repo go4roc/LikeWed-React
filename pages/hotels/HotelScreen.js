@@ -27,8 +27,8 @@ var { width, height, scale } = Dimensions.get('window');
 
 var MAP_URL = "http://restapi.amap.com/v3/staticmap?location=104.07002091,30.66349276&zoom=14&size=665*259&markers=mid,,A:104.07002091,30.66349276&key=81885d006dd6a782ba83c4a2f2e67088&scale=2";
 
-var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
-// var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+// var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
+var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
 
 var HotelServices = React.createClass({
 	renderRow(service1, service2) {
@@ -80,6 +80,15 @@ var HotelScreen = React.createClass({
 	},
 
 	componentDidMount() {
+		var UserDefaults = require('react-native-userdefaults-ios');
+
+		UserDefaults.objectForKey('HLH_CUR_CITYID')
+		    .then(obj => {
+		        //Do something with the returned object...
+		        console.log("=========================================\n", obj);
+		    });
+
+
         this.fetchHotelExtraData(this.props.hotel._id);
     },
 

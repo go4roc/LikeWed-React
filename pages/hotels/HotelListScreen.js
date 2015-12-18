@@ -29,8 +29,8 @@ var HotelCard = require('./components/HotelCard');
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
 
-//var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
-var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
+var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
+// var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 
 var PAGE_SIZE = 10;
 
