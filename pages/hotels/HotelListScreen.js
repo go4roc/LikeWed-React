@@ -5,6 +5,7 @@ var NavigationBar = require('./components/NavigationBar');
 var Icon = require('react-native-vector-icons/Ionicons');
 var RefreshableListView = require('react-native-refreshable-listview');
 var Modal   = require('react-native-modalbox');
+var UserDefaults = require('react-native-userdefaults-ios');
 
 var ReactViewController = require('NativeModules').ReactViewController;
 
@@ -29,8 +30,8 @@ var HotelCard = require('./components/HotelCard');
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
 
-var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
-// var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
+//var HOTEL_LIST_API = "http://api.likewed.net/V1/hotels";
+var HOTEL_LIST_API = "http://localhost:9928/V1/hotels";
 
 var PAGE_SIZE = 10;
 
@@ -49,6 +50,8 @@ var HotelListScreen = React.createClass({
         nextPage: 1
     },
 
+    city: '0_0',
+
     getInitialState() {
         return {
             dataSource: new ListView.DataSource({
@@ -61,7 +64,11 @@ var HotelListScreen = React.createClass({
     },
 
     componentDidMount() {
-        this.fetchTopicsData();
+        UserDefaults.stringForKey('HLH_CUR_CITYID')
+            .then(value => {
+                if (value) this.city = value;
+                this.fetchTopicsData();
+            });
     },
 
     _loadMore() {
@@ -73,7 +80,7 @@ var HotelListScreen = React.createClass({
     },
 
     fetchTopicsData(reload) {
-        var queryItems = [];
+        var queryItems = ["city="+encodeURIComponent(this.city)];
         var filters = this.state.filters;
 
         for (var key in filters) {
@@ -178,7 +185,7 @@ var HotelListScreen = React.createClass({
                         pageSize={8}
                         onEndReached={this._loadMore}
                         dataSource={ this.state.dataSource }
-                        renderRow={ hotel => <HotelCard hotel={hotel} navigator={this.props.navigator} /> }
+                        renderRow={ hotel => <HotelCard hotel={hotel} currentCity={this.city} navigator={this.props.navigator} /> }
                         style={styles.listContainer }
                         removeClippedSubviews={true}
                         onEndReachedThreshold={0}
