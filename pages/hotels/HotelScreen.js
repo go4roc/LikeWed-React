@@ -80,18 +80,6 @@ var HotelScreen = React.createClass({
 	},
 
 	componentDidMount() {
-		var UserDefaults = require('react-native-userdefaults-ios');
-
-<<<<<<< HEAD
-		UserDefaults.objectForKey('HLH_CUR_CITYID')
-		    .then(obj => {
-		        //Do something with the returned object...
-		        console.log("=========================================\n", obj);
-		    });
-
-
-=======
->>>>>>> 7f9a98938e3d0057ab3404c73e43efd60fa8ac5c
         this.fetchHotelExtraData(this.props.hotel._id);
     },
 
