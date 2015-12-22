@@ -5,6 +5,7 @@ var NavigationBar = require('./components/NavigationBar');
 var Icon = require('react-native-vector-icons/Ionicons');
 var RefreshableListView = require('react-native-refreshable-listview');
 var Modal   = require('react-native-modalbox');
+var UserDefaults = require('react-native-userdefaults-ios');
 
 var ReactViewController = require('NativeModules').ReactViewController;
 
@@ -24,6 +25,7 @@ var {width, height} = Dimensions.get('window');
 
 var HotelSortPicker = require('./components/HotelSortPicker');
 var HotelFilterPicker = require('./components/HotelFilterPicker');
+var HotelCard = require('./components/HotelCard');
 
 var styles = require('../../styles/HotelStyles');
 var indicatorStyles = require('../../styles/IndicatorStyles');
@@ -48,6 +50,8 @@ var HotelListScreen = React.createClass({
         nextPage: 1
     },
 
+    city: '0_0',
+
     getInitialState() {
         return {
             dataSource: new ListView.DataSource({
@@ -60,7 +64,11 @@ var HotelListScreen = React.createClass({
     },
 
     componentDidMount() {
-        this.fetchTopicsData();
+        UserDefaults.stringForKey('HLH_CUR_CITYID')
+            .then(value => {
+                if (value) this.city = value;
+                this.fetchTopicsData();
+            });
     },
 
     _loadMore() {
@@ -72,7 +80,7 @@ var HotelListScreen = React.createClass({
     },
 
     fetchTopicsData(reload) {
-        var queryItems = [];
+        var queryItems = ["city="+encodeURIComponent(this.city)];
         var filters = this.state.filters;
 
         for (var key in filters) {
@@ -146,67 +154,6 @@ var HotelListScreen = React.createClass({
         );
     },
 
-    renderHotelRow(hotel) {
-        var capacity = hotel.capacity.start === hotel.capacity.end ? hotel.capacity.start: hotel.capacity.start +'-' + hotel.capacity.end;
-
-        return (
-            <TouchableOpacity onPress={() => this.props.navigator.push({id: 'Hotel', hotel: hotel}) }>
-                <View key={hotel._id} style={{flexDirection: 'row', paddingTop: 12, paddingBottom:12, paddingLeft:10, paddingRight: 10, borderBottomWidth:1, borderColor: "#E1E1E1"}}>
-                    <Image style={{width: 120, height: 88, resizeMode: Image.resizeMode.cover, }} source={{uri: hotel.pics[0].url+'!380x'}} />
-                    <View style={{flex:1, paddingLeft: 8}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text style={{color: '#343434', fontWeight: "300", fontSize: 16}}>{hotel.name}</Text>
-                        </View>
-                        <View style={{flexDirection: 'row', marginTop: 8}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{color: '#FA7621', fontWeight: "300", fontSize: 14}}>{hotel.score}分</Text>
-                                <Text style={{color: '#a7a7a7', fontWeight: "300", fontSize: 14}}>/{hotel.stats.reviews}评论</Text>
-                            </View>
-                            <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end', }} >
-                                <Text style={{color: '#FA7621', fontWeight: "400", fontSize: 14}}><Text style={{color: '#FA7621', fontWeight: "300", fontSize: 9}}>¥</Text>{hotel.price.start}-{hotel.price.end}/桌</Text>
-                            </View>
-                        </View>
-                        <View style={{flexDirection: 'row', marginTop: 8, }}>
-                            <Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>{hotel.category}</Text>
-                            <Text style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>{capacity}桌</Text>
-                            <View style={{paddingTop: 2, flex:1, flexDirection: 'row', justifyContent: 'flex-end', }}>
-                                <Text style={{paddingLeft:3, paddingRight: 3, borderRadius: 3, borderWidth:1, borderColor: '#FA7621', marginLeft: 8, color: '#FA7621', fontWeight: "300", fontSize: 9}}>订单返现</Text>
-                                <Text style={{paddingLeft:3, paddingRight: 3, borderRadius: 3, borderWidth:1, borderColor: '#FA7621', marginLeft: 8, color: '#FA7621', fontWeight: "300", fontSize: 9}}>预约红包</Text>
-                            </View>
-                        </View>
-                        <View style={{flexDirection: 'row', marginTop: 8, }}>
-                            <View style={{flex:1}}>
-                                <Text numberOfLines={1} style={{marginRight: 8, color: '#a7a7a7', fontWeight: "300", fontSize: 13}}>{hotel.location.district}・{hotel.location.description}</Text>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </TouchableOpacity>
-        );
-    },
-
-    renderHotelList() {
-        return (
-            <RefreshableListView
-                initialListSize={8}
-                pageSize={8}
-                onEndReached={this._loadMore}
-                dataSource={ this.state.dataSource }
-                renderRow={ this.renderHotelRow }
-                style={styles.listContainer }
-                removeClippedSubviews={true}
-                onEndReachedThreshold={0}
-                loadData={this._reload}
-                refreshDescription='正在刷新...'
-                refreshingIndictatorComponent={
-                    <RefreshableListView.RefreshingIndicator stylesheet={ indicatorStyles } />
-                }
-                minDisplayTime={500}
-                minPulldownDistance={80}
-                minBetweenTime={2000} />
-        )
-    },
-
     openSortPicker(id) {
         this.refs.sortPicker.open();
     },
@@ -233,7 +180,23 @@ var HotelListScreen = React.createClass({
                 <View style={styles.screen}>
                     { this.renderNavbar() }
                     { this.renderFilterBar() }
-                    { this.renderHotelList() }
+                    <RefreshableListView
+                        initialListSize={8}
+                        pageSize={8}
+                        onEndReached={this._loadMore}
+                        dataSource={ this.state.dataSource }
+                        renderRow={ hotel => <HotelCard hotel={hotel} currentCity={this.city} navigator={this.props.navigator} /> }
+                        style={styles.listContainer }
+                        removeClippedSubviews={true}
+                        onEndReachedThreshold={0}
+                        loadData={this._reload}
+                        refreshDescription='正在刷新...'
+                        refreshingIndictatorComponent={
+                            <RefreshableListView.RefreshingIndicator stylesheet={ indicatorStyles } />
+                        }
+                        minDisplayTime={500}
+                        minPulldownDistance={80}
+                        minBetweenTime={2000} />
                     <HotelSortPicker ref="sortPicker" onSelected={ this.onSortSelected } sortId={ this.state.sortId } />
                     <HotelFilterPicker ref="filterPicker" onFilterChanged={ this.onFilterChanged } filters={this.state.filters}/>
                 </View>

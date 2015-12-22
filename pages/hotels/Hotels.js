@@ -9,6 +9,7 @@ var React = require('react-native');
 var HotelListScreen = require('./HotelListScreen');
 var HotelScreen = require('./HotelScreen');
 var QueryHotelScheduleScreen = require('./QueryHotelScheduleScreen');
+var BookHotelScreen = require('./BookHotelScreen');
 var HotelIntroduceScreen = require('./HotelIntroduceScreen');
 var HotelMenuScreen = require('./HotelMenuScreen');
 var HotelHallScreen = require('./HotelHallScreen');
@@ -30,6 +31,8 @@ var Hotels = React.createClass({
                 return <HotelScreen navigator={navigator} hotel={route.hotel} />;
             case 'QueryHotelSchedule':
                 return <QueryHotelScheduleScreen navigator={navigator} hotel={route.hotel} />
+            case 'BookHotel':
+                return <BookHotelScreen navigator={navigator} hotel={route.hotel} />
             case 'HotelIntroduce':
                 return <HotelIntroduceScreen navigator={navigator} hotel={route.hotel} />
             case 'HotelMenu':

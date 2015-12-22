@@ -27,8 +27,50 @@ var { width, height, scale } = Dimensions.get('window');
 
 var MAP_URL = "http://restapi.amap.com/v3/staticmap?location=104.07002091,30.66349276&zoom=14&size=665*259&markers=mid,,A:104.07002091,30.66349276&key=81885d006dd6a782ba83c4a2f2e67088&scale=2";
 
-var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
-// var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+// var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
+
+var HotelServices = React.createClass({
+	renderRow(service1, service2) {
+		return (
+			<View style={{flexDirection: 'row', marginLeft: 15, marginRight: 15, marginBottom: 10}}>
+				<View style={{flex:1}}>
+					<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>{service1.name}：{service1.value}</Text>
+				</View>
+				{
+					service2 ? 
+						<View style={{flex:1}}>
+							<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>{service2.name}：{service2.value}</Text>
+						</View>
+						: null
+ 				}
+			</View>
+		);
+	},
+
+	render() {
+		var services = this.props.services;
+
+		if (services && services.length > 0) {
+			var rows = [];
+			var count = services.length;
+			for(var i = 0; i < count; i+=2) {
+				rows.push(this.renderRow(services[i], i+1 < count ? services[i+1] : null));
+			}
+
+			return (
+				<View style={{marginTop: 15, backgroundColor: "#FFFFFF"}}>
+		   			<View style={{alignItems: 'center', padding: 15}} >
+		        		<Text style={{color: '#A9A9A9', fontWeight: "300", fontSize: 16}}>规则和配套</Text>
+		        	</View>
+		        	<View style={{}}>
+						{ rows }
+		        	</View>
+		        </View>
+		    );
+		}
+	},
+});
 
 var HotelScreen = React.createClass({
 	getInitialState: function() {
@@ -38,6 +80,15 @@ var HotelScreen = React.createClass({
 	},
 
 	componentDidMount() {
+		var UserDefaults = require('react-native-userdefaults-ios');
+
+		UserDefaults.objectForKey('HLH_CUR_CITYID')
+		    .then(obj => {
+		        //Do something with the returned object...
+		        console.log("=========================================\n", obj);
+		    });
+
+
         this.fetchHotelExtraData(this.props.hotel._id);
     },
 
@@ -48,7 +99,7 @@ var HotelScreen = React.createClass({
     			console.info('json:\n', json);
     			this.props.hotel.halls = json.halls;
     			this.props.hotel.menus = json.menus;
-    			// this.props.hotel.services = json.services;
+    			this.props.hotel.services = json.services;
     			this.props.hotel.reviews = json.reviews;
     			// this.props.hotel.related = json.related;
 
@@ -271,52 +322,6 @@ var HotelScreen = React.createClass({
 		}
 	},
 
-	renderServices(hotel) {
-		if (hotel.services && hotel.services.length > 0) {
-			return (
-				<View style={{marginTop: 15, backgroundColor: "#FFFFFF"}}>
-		   			<View style={{alignItems: 'center', padding: 15}} >
-		        		<Text style={{color: '#A9A9A9', fontWeight: "300", fontSize: 16}}>规则和配套</Text>
-		        	</View>
-		        	<View style={{}}>
-						<View style={{flexDirection: 'row', marginLeft: 15, marginRight: 15, marginBottom: 10}}>
-							<View style={{flex:1}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>服务费：{hotel.services.charge > 0 ? hotel.services.charge+'%' : "无"}</Text>
-							</View>
-							<View style={{flex:1,}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>停车位：{hotel.services.parking}</Text>
-							</View>
-						</View>
-						<View style={{flexDirection: 'row', marginLeft: 15, marginRight: 15, marginBottom: 10}}>
-							<View style={{flex:1}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>草坪：{hotel.services.lawn}</Text>
-							</View>
-							<View style={{flex:1,}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>进场费：{hotel.services.admission_fee > 0? "¥"+hotel.services.admission_fee : "无"}</Text>
-							</View>
-						</View>
-						<View style={{flexDirection: 'row', marginLeft: 15, marginRight: 15, marginBottom: 10}}>
-							<View style={{flex:1}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>化妆间：{hotel.services.dressing_room}</Text>
-							</View>
-							<View style={{flex:1,}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>开瓶费：{hotel.services.opening_bottle_fee > 0? "¥"+hotel.services.opening_bottle_fee+"/瓶" : "无"}</Text>
-							</View>
-						</View>
-						<View style={{flexDirection: 'row', marginLeft: 15, marginRight: 15, marginBottom: 10}}>
-							<View style={{flex:1}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}>婚房：{hotel.services.marriage_room}</Text>
-							</View>
-							<View style={{flex:1,}}>
-								<Text style={{color: '#343434', fontWeight: "300", fontSize: 14}}></Text>
-							</View>
-						</View>
-		        	</View>
-		        </View>
-		    );
-		}
-	},
-
 	renderReview(hotel, review) {
 		return (
 			<View style={{flexDirection: 'row', marginTop: 15, marginLeft: 15, marginRight: 15, marginBottom: 10, paddingBottom: 15}}>
@@ -457,8 +462,10 @@ var HotelScreen = React.createClass({
 					<Icon name='ios-chatbubble-outline' size={20} color='#989898' style={{width: 20, height: 20, }} />
 					<Text style={{color: '#989898', fontWeight: "300", fontSize: 13}}>咨询</Text>
 				</View>
-				<View style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}}>
-					<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>预约看场地</Text>
+				<View style={{flex:1}}>
+					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}} onPress={() => this.props.navigator.push({id: 'BookHotel', hotel: this.props.hotel})}>
+						<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>预约看场地</Text>
+					</TouchableOpacity>
 				</View>
 				<View style={{flex:1}}>
 					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6600'}} onPress={() => this.props.navigator.push({id: 'QueryHotelSchedule', hotel: this.props.hotel})}>
@@ -487,8 +494,8 @@ var HotelScreen = React.createClass({
 	            		{ this.renderHeader(this.props.hotel) }
 	            		{ this.renderInfo(this.props.hotel) }
 		                { this.renderHalls(this.props.hotel) }
-		                 { this.renderMenus(this.props.hotel) }
-	               		{ this.renderServices(this.props.hotel) }
+		                { this.renderMenus(this.props.hotel) }
+		                <HotelServices services={this.props.hotel.services} />
 	               		{ this.renderReviews(this.props.hotel) }
 	               		{ this.renderSimilarHotels(this.props.hotel) }  
 		            </ScrollView>
