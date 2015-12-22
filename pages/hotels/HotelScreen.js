@@ -80,8 +80,6 @@ var HotelScreen = React.createClass({
 	},
 
 	componentDidMount() {
-		var UserDefaults = require('react-native-userdefaults-ios');
-
         this.fetchHotelExtraData(this.props.hotel._id);
     },
 
