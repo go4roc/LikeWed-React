@@ -27,8 +27,8 @@ var { width, height, scale } = Dimensions.get('window');
 
 var MAP_URL = "http://restapi.amap.com/v3/staticmap?location=104.07002091,30.66349276&zoom=14&size=665*259&markers=mid,,A:104.07002091,30.66349276&key=81885d006dd6a782ba83c4a2f2e67088&scale=2";
 
-//var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
 var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+// var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
 
 var HotelServices = React.createClass({
 	renderRow(service1, service2) {
@@ -453,8 +453,10 @@ var HotelScreen = React.createClass({
 					<Icon name='ios-chatbubble-outline' size={20} color='#989898' style={{width: 20, height: 20, }} />
 					<Text style={{color: '#989898', fontWeight: "300", fontSize: 13}}>咨询</Text>
 				</View>
-				<View style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}}>
-					<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>预约看场地</Text>
+				<View style={{flex:1}}>
+					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}} onPress={() => this.props.navigator.push({id: 'BookHotel', hotel: this.props.hotel})}>
+						<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>预约看场地</Text>
+					</TouchableOpacity>
 				</View>
 				<View style={{flex:1}}>
 					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6600'}} onPress={() => this.props.navigator.push({id: 'QueryHotelSchedule', hotel: this.props.hotel})}>
