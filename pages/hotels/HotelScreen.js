@@ -27,8 +27,8 @@ var { width, height, scale } = Dimensions.get('window');
 
 var MAP_URL = "http://restapi.amap.com/v3/staticmap?location=104.07002091,30.66349276&zoom=14&size=665*259&markers=mid,,A:104.07002091,30.66349276&key=81885d006dd6a782ba83c4a2f2e67088&scale=2";
 
-var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
-// var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
+// var HOTEL_EXTRA_API = "http://api.likewed.net/V1/hotel/";
+var HOTEL_EXTRA_API = "http://localhost:9928/V1/hotel/";
 
 var HotelServices = React.createClass({
 	renderRow(service1, service2) {
@@ -73,28 +73,28 @@ var HotelServices = React.createClass({
 });
 
 var HotelScreen = React.createClass({
+	getDefaultProps: function() {
+		return {
+			launchMode: 0 // launchMode -- 1：从nativeView启动； 0 or 不存在： 从React中调用
+		};
+	},
 	getInitialState: function() {
 		return {
+			hotel: this.props.hotel,
 			loaded: false,
 		};
 	},
 
 	componentDidMount() {
-		console.info('Hotel rootTag ', this.props.rootTag);
-        this.fetchHotelExtraData(this.props.hotel._id);
+		console.info('Hotel launchMode ', this.props.launchMode);
+        this.fetchHotelExtraData(this.state.hotel._id);
     },
 
     fetchHotelExtraData(id) {
-    	fetch(HOTEL_EXTRA_API+id+'/extra')
+    	fetch(HOTEL_EXTRA_API+id)
     		.then(res => res.json())
     		.then(json => {
-    			this.props.hotel.halls = json.halls;
-    			this.props.hotel.menus = json.menus;
-    			this.props.hotel.services = json.services;
-    			this.props.hotel.reviews = json.reviews;
-    			// this.props.hotel.related = json.related;
-
-    			this.setState({loaded: true});
+    			this.setState({loaded: true, hotel: json});
     		})
     		.catch(err => {
     			console.error('获取酒店信息失败:\n', err);
@@ -104,14 +104,14 @@ var HotelScreen = React.createClass({
 	renderNavbar() {
 		return (
 			<NavigationBar
-	            title={{title: this.props.hotel.name}}
+	            title={{title: this.state.hotel.name}}
 	            leftButton={
 	            	<TouchableOpacity onPress={() => this.props.navigator.pop()}>
                         <Icon name='ios-arrow-back'size={20} color='#e9573e' style={{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }} />
                 	</TouchableOpacity>
 	            }
 	            rightButton={
-	                <TouchableOpacity onPress={() => this.props.navigator.push({id: 'ShareHotel', hotel: this.props.hotel})}>
+	                <TouchableOpacity onPress={() => this.props.navigator.push({id: 'ShareHotel', hotel: this.state.hotel})}>
                         <Icon name='ios-upload-outline' size={20} color='#e9573e' style={{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }} />
                 	</TouchableOpacity>
                 } />
@@ -454,12 +454,12 @@ var HotelScreen = React.createClass({
 					<Text style={{color: '#989898', fontWeight: "300", fontSize: 13}}>咨询</Text>
 				</View>
 				<View style={{flex:1}}>
-					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}} onPress={() => this.props.navigator.push({id: 'BookHotel', hotel: this.props.hotel})}>
+					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFB964'}} onPress={() => this.props.navigator.push({id: 'BookHotel', hotel: this.state.hotel})}>
 						<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>预约看场地</Text>
 					</TouchableOpacity>
 				</View>
 				<View style={{flex:1}}>
-					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6600'}} onPress={() => this.props.navigator.push({id: 'QueryHotelSchedule', hotel: this.props.hotel})}>
+					<TouchableOpacity style={{flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FF6600'}} onPress={() => this.props.navigator.push({id: 'QueryHotelSchedule', hotel: this.state.hotel})}>
 						<Text style={{color: '#FFFFFF', fontWeight: "300", fontSize: 16}}>档期查询</Text>
 					</TouchableOpacity>
 				</View>
@@ -477,34 +477,49 @@ var HotelScreen = React.createClass({
 	},
 
     render() {
+    	console.info('Hotel launchMode ', this.props.launchMode);
+
     	if (this.state.loaded) {
     		return (
 	            <View style={{flex:1}}>
 	            	{ this.renderNavbar() }
 	            	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
-	            		{ this.renderHeader(this.props.hotel) }
-	            		{ this.renderInfo(this.props.hotel) }
-		                { this.renderHalls(this.props.hotel) }
-		                { this.renderMenus(this.props.hotel) }
-		                <HotelServices services={this.props.hotel.services} />
-	               		{ this.renderReviews(this.props.hotel) }
-	               		{ this.renderSimilarHotels(this.props.hotel) }  
+	            		{ this.renderHeader(this.state.hotel) }
+	            		{ this.renderInfo(this.state.hotel) }
+		                { this.renderHalls(this.state.hotel) }
+		                { this.renderMenus(this.state.hotel) }
+		                <HotelServices services={this.state.hotel.services} />
+	               		{ this.renderReviews(this.state.hotel) }
+	               		{ this.renderSimilarHotels(this.state.hotel) }  
 		            </ScrollView>
 		            { this.renderFooter() }
 	            </View>
 	        );		
     	} else {
-    		return (
-	            <View style={{flex:1}}>
-	            	{ this.renderNavbar() }
-	            	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
-	            		{ this.renderHeader(this.props.hotel) }
-	            		{ this.renderInfo(this.props.hotel) }
-	            		{ this.renderLoadding() }
-		            </ScrollView>
-		            { this.renderFooter() }
-	            </View>
-	        );		
+    		if (this.props.launchMode === 1) {
+	    		return (
+		            <View style={{flex:1}}>
+		            	{ this.renderNavbar() }
+		            	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
+		            		{ this.renderLoadding() }
+			            </ScrollView>
+			            { this.renderFooter() }
+		            </View>
+		        );
+
+		    } else {
+	    		return (
+		            <View style={{flex:1}}>
+		            	{ this.renderNavbar() }
+		            	<ScrollView style={{flex:1, backgroundColor: '#F0EFF5'}}>
+		            		{ this.renderHeader(this.state.hotel) }
+		            		{ this.renderInfo(this.state.hotel) }
+		            		{ this.renderLoadding() }
+			            </ScrollView>
+			            { this.renderFooter() }
+		            </View>
+		        );	
+		    }	
     	}
     }
 });
