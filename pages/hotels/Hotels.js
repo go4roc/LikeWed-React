@@ -20,15 +20,22 @@ var {
 } = React;
 
 var Hotels = React.createClass({
+    componentDidMount() {
+        console.info(this.props);
+    },
+
+    /**
+     * launchMode -- 1：从nativeView启动； 0 or 不存在： 从React中调用
+     */
     renderRouter(route, navigator) {
         console.info('route ...');
         console.info(route);
 
         switch(route.id) {
             case 'HotelList':
-                return <HotelListScreen navigator={navigator} sort={route.sort} filter={route.filter} />
+                return <HotelListScreen navigator={navigator} launchMode={this.props.launchView === "HotelList" ? 1 : 0 } sort={route.sort} filter={route.filter} />
             case 'Hotel': 
-                return <HotelScreen navigator={navigator} hotel={route.hotel} />;
+                return <HotelScreen navigator={navigator} launchMode={this.props.launchView === "Hotel" ? 1 : 0 }  hotel={route.hotel || this.props.hotel} />;
             case 'QueryHotelSchedule':
                 return <QueryHotelScheduleScreen navigator={navigator} hotel={route.hotel} />
             case 'BookHotel':
@@ -47,7 +54,7 @@ var Hotels = React.createClass({
             <Navigator
                 ref="navigator"
                 renderScene={this.renderRouter}
-                initialRoute={{id: 'HotelList'}}
+                initialRoute={{id: this.props.launchView}}
                 configureScene={(route) => {
                     return Navigator.SceneConfigs.FloatFromRight
                 }} />

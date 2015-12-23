@@ -80,6 +80,7 @@ var HotelScreen = React.createClass({
 	},
 
 	componentDidMount() {
+		console.info('Hotel rootTag ', this.props.rootTag);
         this.fetchHotelExtraData(this.props.hotel._id);
     },
 
@@ -87,7 +88,6 @@ var HotelScreen = React.createClass({
     	fetch(HOTEL_EXTRA_API+id+'/extra')
     		.then(res => res.json())
     		.then(json => {
-    			console.info('json:\n', json);
     			this.props.hotel.halls = json.halls;
     			this.props.hotel.menus = json.menus;
     			this.props.hotel.services = json.services;
