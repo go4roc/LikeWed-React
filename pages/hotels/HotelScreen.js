@@ -101,12 +101,21 @@ var HotelScreen = React.createClass({
     		});
     },
 
+    _goBack() {
+    	if (this.props.launchMode === 1) {
+    		let ReactViewController = require('NativeModules').ReactViewController;
+    		ReactViewController.closeViewController();
+    	} else {
+    		this.props.navigator.pop();
+    	}
+    },
+
 	renderNavbar() {
 		return (
 			<NavigationBar
 	            title={{title: this.state.hotel.name}}
 	            leftButton={
-	            	<TouchableOpacity onPress={() => this.props.navigator.pop()}>
+	            	<TouchableOpacity onPress={ this._goBack }>
                         <Icon name='ios-arrow-back'size={20} color='#e9573e' style={{ marginLeft: 10, marginRight: 10, width: 20, height: 20, }} />
                 	</TouchableOpacity>
 	            }
